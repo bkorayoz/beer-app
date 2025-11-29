@@ -1,26 +1,126 @@
 @import "tailwindcss";
+@plugin "tailwindcss-animate";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Figma Design Tokens */
+  --background: 37 33% 96%; /* #F8F5F0 converted to HSL approx 37 33 96 */
+  --foreground: 0 0% 13%; /* #222222 */
+  
+  --card: 0 0% 100%; /* #FFFFFF */
+  --card-foreground: 0 0% 13%; /* #222222 */
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 13%;
+  
+  --primary: 34 66% 50%; /* #D48C2B - Amber Accent */
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 13%;
+  
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 33%; /* #555555 */
+  
+  --accent: 34 66% 50%;
+  --accent-foreground: 0 0% 100%;
+  
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 40 11% 86%; /* #E0DDD8 */
+  --input: 40 11% 86%;
+  --ring: 34 66% 50%;
+  
+  --radius: 0.5rem;
+  
+  /* Custom Beer Blog Vars */
+  --beer-amber: 34 66% 50%; /* #D48C2B */
+  --beer-overlay: 0 0% 0% / 0.5;
+}
+
+.dark {
+  /* Dark Theme Tokens */
+  --background: 0 0% 7%; /* #121212 */
+  --foreground: 0 0% 88%; /* #E0E0E0 */
+  
+  --card: 0 0% 12%; /* #1E1E1E */
+  --card-foreground: 0 0% 88%;
+  
+  --popover: 0 0% 12%;
+  --popover-foreground: 0 0% 88%;
+  
+  --primary: 34 66% 50%; /* #D48C2B */
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 0 0% 12%;
+  --secondary-foreground: 0 0% 88%;
+  
+  --muted: 0 0% 12%;
+  --muted-foreground: 0 0% 69%; /* #B0B0B0 */
+  
+  --accent: 34 66% 50%;
+  --accent-foreground: 0 0% 100%;
+  
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  
+  --border: 0 0% 20%; /* #333333 */
+  --input: 0 0% 20%;
+  --ring: 34 66% 50%;
+  
+  --beer-overlay: 0 0% 0% / 0.7;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  
+  --color-beer-amber: hsl(var(--beer-amber));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: Georgia, "Times New Roman", Times, serif;
+    @apply font-bold text-foreground;
+  }
+  h1 {
+    @apply text-5xl md:text-6xl leading-tight; /* 3rem in base design, scaled up for modern feel or stick to 3rem (text-5xl is 3rem) */
+  }
+  h2 {
+    @apply text-4xl; /* 2.25rem approx */
+  }
+  p {
+    @apply text-lg leading-relaxed mb-6;
+  }
 }

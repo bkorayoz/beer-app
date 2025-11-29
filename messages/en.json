@@ -1,0 +1,37 @@
+{
+  "HomePage": {
+    "title": "Istanbul School of Beers",
+    "subtitle": "Discover the world's finest brews",
+    "heroTitle": "The Art of Brewing",
+    "searchPlaceholder": "Search for beers, styles, or breweries..."
+  },
+  "hero": {
+    "title": "The Art of Brewing",
+    "subtitle": "Discover the world's finest brews, from ancient traditions to modern craft revolutions."
+  },
+  "search": {
+    "title": "Beer Search",
+    "placeholder": "Search beers, brewing techniques, beer styles...",
+    "button": "Search",
+    "popular": "Popular:"
+  },
+  "header": {
+    "home": "Home",
+    "about": "About",
+    "search": "Search",
+    "language": "Language",
+    "toggleTheme": "Toggle theme"
+  },
+  "blog": {
+    "latestArticles": "Latest Articles",
+    "readMore": "Read More"
+  },
+  "Navigation": {
+    "home": "Home",
+    "blog": "Blog",
+    "about": "About"
+  },
+  "Footer": {
+    "copyright": "© 2025 Istanbul School of Beers. All rights reserved."
+  }
+}
