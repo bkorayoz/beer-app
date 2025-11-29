@@ -7,6 +7,7 @@ import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { SemanticHeading } from "@/components/aeo/SemanticHeading";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { SearchCommand } from "@/components/search/SearchCommand";
 
 export function Navbar() {
   const t = useTranslations('header');
@@ -31,20 +32,18 @@ export function Navbar() {
             </Link>
 
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hover:text-beer-amber"
-                aria-label={t('search')}
-                onClick={() => {
-                  const element = document.getElementById('advanced-search');
-                  if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-              >
-                <Search className="h-5 w-5" />
-              </Button>
+              <SearchCommand
+                trigger={
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hover:text-beer-amber"
+                    aria-label={t('search')}
+                  >
+                    <Search className="h-5 w-5" />
+                  </Button>
+                }
+              />
 
               <LanguageSwitcher />
 

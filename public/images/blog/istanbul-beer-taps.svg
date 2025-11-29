@@ -1,0 +1,28 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="beerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    </linearGradient>
+    <pattern id="bubbles" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#ffffff" fill-opacity="0.3"/>
+      <circle cx="10" cy="10" r="1.5" fill="#ffffff" fill-opacity="0.2"/>
+    </pattern>
+  </defs>
+  
+  <rect width="1200" height="630" fill="#1f2937"/>
+  
+  <g transform="translate(525, 180)">
+    <path d="M10,0 L140,0 L130,220 C130,240 110,250 75,250 C40,250 20,240 20,220 L10,0 Z" fill="url(#beerGradient)"/>
+    <path d="M10,0 Q25,-20 40,0 T70,0 T100,0 T140,0 L140,20 L10,20 Z" fill="#ffffff"/>
+    <path d="M135,50 C165,50 165,130 132,130" fill="none" stroke="#f59e0b" stroke-width="12"/>
+    <path d="M10,0 L140,0 L130,220 C130,240 110,250 75,250 C40,250 20,240 20,220 L10,0 Z" fill="url(#bubbles)"/>
+  </g>
+
+  <text x="600" y="500" font-family="system-ui, sans-serif" font-size="48" font-weight="bold" fill="#ffffff" text-anchor="middle">
+    Istanbul School of Beers
+  </text>
+  <text x="600" y="550" font-family="system-ui, sans-serif" font-size="24" fill="#9ca3af" text-anchor="middle">
+    Craft Beer • Brewing • Culture
+  </text>
+</svg>

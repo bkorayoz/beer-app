@@ -1,18 +1,19 @@
 import { Hero } from '@/components/Hero';
-import { BlogGrid } from '@/components/home/BlogGrid';
+import { SearchableBlogLayout } from '@/components/home/SearchableBlogLayout';
 import { StructuredData } from '@/components/aeo/StructuredData';
-import { AdvancedSearch } from '@/components/home/AdvancedSearch';
 import { WebSite, WithContext } from 'schema-dts';
+import { getAllPosts } from '@/lib/mdx';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const posts = await getAllPosts();
   const structuredData: WithContext<WebSite> = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Classic Beer Blog',
-    url: 'https://classicbeerblog.com',
+    name: 'Istanbul School of Beers',
+    url: 'https://istanbulschoolofbeers.com',
     potentialAction: {
       '@type': 'SearchAction',
-      target: 'https://classicbeerblog.com/search?q={search_term_string}',
+      target: 'https://istanbulschoolofbeers.com/search?q={search_term_string}',
       'query-input': 'required name=search_term_string',
     } as any,
   };
@@ -21,8 +22,7 @@ export default function HomePage() {
     <>
       <StructuredData data={structuredData} />
       <Hero />
-      <AdvancedSearch />
-      <BlogGrid />
+      <SearchableBlogLayout posts={posts} />
     </>
   );
 }

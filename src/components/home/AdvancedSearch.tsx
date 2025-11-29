@@ -7,14 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SemanticHeading } from "@/components/aeo/SemanticHeading";
 
-export function AdvancedSearch() {
-    const t = useTranslations('search');
-    const [searchQuery, setSearchQuery] = useState('');
+interface AdvancedSearchProps {
+    query: string;
+    onQueryChange: (query: string) => void;
+}
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log('Searching for:', searchQuery);
-    };
+export function AdvancedSearch({ query, onQueryChange }: AdvancedSearchProps) {
+    const t = useTranslations('search');
+
+
 
     return (
         <section id="advanced-search" className="py-12 md:py-16 bg-card" data-search-section>
@@ -24,13 +25,13 @@ export function AdvancedSearch() {
                         {t('title')}
                     </SemanticHeading>
 
-                    <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
+                    <div className="flex flex-col md:flex-row gap-4">
                         <div className="flex-1 relative">
                             <Input
                                 type="text"
                                 placeholder={t('placeholder')}
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
+                                value={query}
+                                onChange={(e) => onQueryChange(e.target.value)}
                                 className="w-full pl-6 pr-12 py-6 text-lg rounded-lg border-2 border-input bg-background focus-visible:ring-0 focus-visible:border-primary transition-all"
                             />
                             <Search
@@ -40,13 +41,13 @@ export function AdvancedSearch() {
                         </div>
 
                         <Button
-                            type="submit"
+                            type="button"
                             size="lg"
                             className="px-8 py-6 text-lg font-semibold bg-beer-amber hover:bg-beer-amber/90 text-white rounded-lg transition-all"
                         >
                             {t('button')}
                         </Button>
-                    </form>
+                    </div>
 
                     <div className="mt-6 flex flex-wrap gap-3 justify-center items-center">
                         <span className="text-muted-foreground">{t('popular')}</span>
@@ -55,7 +56,7 @@ export function AdvancedSearch() {
                                 key={tag}
                                 variant="outline"
                                 className="rounded-full border-border hover:border-beer-amber hover:text-beer-amber transition-all bg-transparent"
-                                onClick={() => setSearchQuery(tag)}
+                                onClick={() => onQueryChange(tag)}
                             >
                                 {tag}
                             </Button>

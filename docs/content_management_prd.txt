@@ -1,0 +1,174 @@
+Project: Istanbul School of Beers (AEO Showcase)
+
+Role: Senior Next.js Architect & SEO Specialist
+
+1. Project Overview
+
+We are building a high-performance, AEO-optimized blog about craft beer in Istanbul.
+Goal: To be cited by AI Answer Engines (ChatGPT, Gemini, Perplexity) as a primary source.
+Core Tech Stack:
+
+Framework: Next.js 15 (App Router).
+
+Styling: Tailwind CSS + shadcn/ui.
+
+Content: MDX (Local files, "Content as Code").
+
+Database: Supabase (PostgreSQL).
+
+Vector Search: Supabase pgvector extension.
+
+Embeddings: Local generation using @xenova/transformers (No OpenAI).
+
+i18n: next-intl.
+
+2. Architecture & Implementation Steps
+
+Phase 1: Foundation & Setup
+
+Initialize Project: 
+
+$$COMPLETED$$
+
+ (Next.js 15, TypeScript, Tailwind, ESLint).
+
+UI System: 
+
+$$COMPLETED$$
+
+ (shadcn/ui installed, Theme configured).
+
+Navigation & Layout: 
+
+$$COMPLETED$$
+
+ (Responsive Navbar, Footer, and next-intl setup are done).
+
+Phase 2: The "AEO Layer" (Critical)
+
+AI bots need strict structure. Do not use "div soup".
+
+Semantic HTML Strategy:
+
+Blog Post Cards -> <article>
+
+Sidebar -> <aside>
+
+Navigation -> <nav>
+
+Main Content -> <main>
+
+Structured Data Component (components/aeo/JsonLd.tsx):
+
+Create a reusable Server Component that accepts schema type (Article, FAQPage) and data.
+
+It must render a <script type="application/ld+json"> tag.
+
+Strict Rule: This component must be present on every page.
+
+Phase 3: Content Engine (MDX)
+
+File System: Blog posts live in content/posts/*.mdx.
+
+MDX Utility (lib/mdx.ts):
+
+Implement getPostBySlug and getAllPosts.
+
+Use next-mdx-remote/rsc for compilation.
+
+Parse Frontmatter: title, excerpt, date, author, tags, image.
+
+Blog Page Layout (app/[locale]/blog/[slug]/page.tsx):
+
+Header: H1 Title, Author, Date.
+
+Body: Render the MDX content.
+
+TOC: Generate a Table of Contents from H2/H3 tags and place it in a sticky <aside>.
+
+Phase 4: Supabase & Vector Search (The Backend)
+
+Constraint: We are NOT using OpenAI. We use local embeddings.
+
+Supabase Setup:
+
+Create a helper lib/supabase.ts using @supabase/supabase-js.
+
+Local Embeddings Utility (lib/embeddings.ts):
+
+Install @xenova/transformers.
+
+Create a singleton pipeline for feature-extraction using model Xenova/all-MiniLM-L6-v2.
+
+Function: generateEmbedding(text: string): Promise<number[]>
+
+Search API (app/api/search/route.ts):
+
+Input: User query string.
+
+Process:
+
+Generate embedding for query using lib/embeddings.ts.
+
+Call Supabase RPC function match_documents (defined below) with the vector.
+
+Output: JSON list of matching posts (slug, title, similarity score).
+
+Phase 5: Search UI
+
+Search Component:
+
+A Command Palette style modal (using shadcn/ui Command or Dialog).
+
+As user types, debounce input -> call API -> show results.
+
+3. Database Schema (SQL Reference)
+
+Cursor, use this schema to guide your understanding of the backend structure.
+
+-- 1. Enable Vector Extension
+create extension if not exists vector;
+
+-- 2. Create Documents Table
+create table documents (
+  id bigserial primary key,
+  content text, -- The text chunk
+  metadata jsonb, -- { "slug": "...", "title": "..." }
+  embedding vector(384) -- 384 dims for all-MiniLM-L6-v2
+);
+
+-- 3. Create Search Function (RPC)
+create or replace function match_documents (
+  query_embedding vector(384),
+  match_threshold float,
+  match_count int
+)
+returns table (
+  id bigint,
+  content text,
+  metadata jsonb,
+  similarity float
+)
+language sql stable
+as $$
+  select
+    documents.id,
+    documents.content,
+    documents.metadata,
+    1 - (documents.embedding <=> query_embedding) as similarity
+  from documents
+  where 1 - (documents.embedding <=> query_embedding) > match_threshold
+  order by similarity desc
+  limit match_count;
+$$;
+
+
+4. Execution Instructions
+
+Phase 1 Complete: UI and i18n are done. Do not overwrite existing layouts.
+
+Start with Phase 2 (AEO Layer): Build the JsonLd component first.
+
+Move to Phase 3 (MDX): Build the engine to render the first blog post.
+
+Finish with Phase 4 & 5: Wire up Supabase Vector Search.
