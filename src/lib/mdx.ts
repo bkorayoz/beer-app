@@ -4,6 +4,7 @@ import matter from 'gray-matter';
 import { compileMDX } from 'next-mdx-remote/rsc';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import remarkGfm from 'remark-gfm';
 import { AnswerTarget } from '@/components/aeo/AnswerTarget';
 
 const rootDirectory = path.join(process.cwd(), 'content', 'posts');
@@ -38,6 +39,7 @@ export async function getPostBySlug(slug: string) {
         options: {
             parseFrontmatter: true,
             mdxOptions: {
+                remarkPlugins: [remarkGfm],
                 rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
             },
         },
