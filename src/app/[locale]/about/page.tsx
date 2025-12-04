@@ -1,4 +1,35 @@
 import { SemanticHeading } from '@/components/aeo/SemanticHeading';
+import { Metadata } from 'next';
+import { SITE_CONFIG } from '@/lib/config';
+import { routing } from '@/i18n/routing';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const baseUrl = SITE_CONFIG.url;
+  const locale = routing.defaultLocale;
+  const canonicalUrl = `${baseUrl}/${locale}/about`;
+  const description = 'Learn about Istanbul School of Beers, your premier destination for craft beer guides, reviews, and brewing tips. Discover our mission to bring the rich history and vibrant culture of beer to enthusiasts around the world.';
+
+  return {
+    title: 'About | Istanbul School of Beers',
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: 'About | Istanbul School of Beers',
+      description,
+      url: canonicalUrl,
+      siteName: SITE_CONFIG.name,
+      type: 'website',
+      locale: locale,
+    },
+    twitter: {
+      card: 'summary',
+      title: 'About | Istanbul School of Beers',
+      description,
+    },
+  };
+}
 
 export default function AboutPage() {
   return (

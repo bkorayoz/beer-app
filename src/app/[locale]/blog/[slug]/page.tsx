@@ -7,6 +7,56 @@ import { Link } from '@/i18n/routing';
 import { ChevronLeft, User, Clock, Calendar } from 'lucide-react';
 import Image from 'next/image';
 import { BlogPosting, WithContext } from 'schema-dts';
+import { Metadata } from 'next';
+import { SITE_CONFIG } from '@/lib/config';
+import { routing } from '@/i18n/routing';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
+
+  if (!post) {
+    return {
+      title: 'Post Not Found',
+    };
+  }
+
+  const baseUrl = SITE_CONFIG.url;
+  const locale = routing.defaultLocale;
+  const canonicalUrl = `${baseUrl}/${locale}/blog/${slug}`;
+  
+  // Ensure image URL is absolute
+  const ogImage = post.meta.image 
+    ? (post.meta.image.startsWith('http') ? post.meta.image : `${baseUrl}${post.meta.image}`)
+    : undefined;
+
+  const publishedTime = new Date(post.meta.date).toISOString();
+
+  return {
+    title: `${post.meta.title} | Istanbul School of Beers`,
+    description: post.meta.excerpt,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: post.meta.title,
+      description: post.meta.excerpt,
+      url: canonicalUrl,
+      siteName: SITE_CONFIG.name,
+      type: 'article',
+      locale: locale,
+      publishedTime,
+      authors: [post.meta.author],
+      images: ogImage ? [{ url: ogImage, alt: post.meta.title }] : undefined,
+    },
+    twitter: {
+      card: ogImage ? 'summary_large_image' : 'summary',
+      title: post.meta.title,
+      description: post.meta.excerpt,
+      images: ogImage ? [ogImage] : undefined,
+    },
+  };
+}
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -19,17 +69,24 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const headings = getHeadings(post.rawContent);
   const tocItems = headings.map(h => ({ id: h.slug, text: h.text, level: h.level }));
 
+  const publishedDate = new Date(post.meta.date);
+  const baseUrl = SITE_CONFIG.url;
+  const ogImage = post.meta.image 
+    ? (post.meta.image.startsWith('http') ? post.meta.image : `${baseUrl}${post.meta.image}`)
+    : undefined;
+
   const structuredData: WithContext<BlogPosting> = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: post.meta.title,
     datePublished: post.meta.date,
+    dateModified: post.meta.date, // Using datePublished as dateModified for now
     author: {
       '@type': 'Person',
       name: post.meta.author
     },
     description: post.meta.excerpt,
-    image: post.meta.image ? [post.meta.image] : undefined,
+    image: ogImage ? [ogImage] : undefined,
   };
 
   return (

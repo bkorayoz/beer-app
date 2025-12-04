@@ -3,6 +3,36 @@ import { SearchableBlogLayout } from '@/components/home/SearchableBlogLayout';
 import { StructuredData } from '@/components/aeo/StructuredData';
 import { WebSite, WithContext } from 'schema-dts';
 import { getAllPosts } from '@/lib/mdx';
+import { Metadata } from 'next';
+import { SITE_CONFIG } from '@/lib/config';
+import { routing } from '@/i18n/routing';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const baseUrl = SITE_CONFIG.url;
+  const locale = routing.defaultLocale;
+  const canonicalUrl = `${baseUrl}/${locale}`;
+
+  return {
+    title: 'Istanbul School of Beers | Craft Beer Guide & Blog',
+    description: SITE_CONFIG.description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: 'Istanbul School of Beers | Craft Beer Guide & Blog',
+      description: SITE_CONFIG.description,
+      url: canonicalUrl,
+      siteName: SITE_CONFIG.name,
+      type: 'website',
+      locale: locale,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Istanbul School of Beers | Craft Beer Guide & Blog',
+      description: SITE_CONFIG.description,
+    },
+  };
+}
 
 export default async function HomePage() {
   const posts = await getAllPosts();
