@@ -1,0 +1,152 @@
+Project: Istanbul School of Beers (Universal Analytics)
+
+Role: Senior Backend Architect
+
+1. Objective
+
+Implement a comprehensive, persistent logging system to track ALL web traffic (Humans & Bots).
+Data will be stored in Supabase using TimescaleDB (or standard partitioning) to analyze trends, SEO performance, and AI crawler activity.
+
+2. Technical Stack
+
+Database: Supabase (PostgreSQL).
+
+Extension: timescaledb (recommended) or standard indexing.
+
+Ingestion: Next.js Middleware (Non-blocking async writes).
+
+Client: @supabase/supabase-js (using Service Role Key for write access).
+
+3. Database Schema (SQL)
+
+We need a generic traffic_logs table optimized for high-volume writes.
+
+Task for Cursor:
+
+Create a migration/SQL snippet.
+
+Ensure the design handles both bot and human metadata.
+
+-- 1. Enable TimescaleDB (if available)
+create extension if not exists timescaledb;
+
+-- 2. Create the Universal Logs Table
+create table if not exists traffic_logs (
+  time        timestamptz not null default now(),
+  path        text not null,
+  method      text,
+  ip          text,           -- User IP
+  user_agent  text,           -- Full UA string
+  is_bot      boolean default false, -- Classification
+  bot_name    text,           -- e.g. "Googlebot", "GPTBot" (Nullable)
+  referer     text,           -- Where did they come from?
+  country     text,           -- (Optional) if available in headers
+  meta        jsonb           -- Extra data
+);
+
+-- 3. Convert to Hypertable (TimescaleDB specific)
+-- If Timescale is enabled:
+select create_hypertable('traffic_logs', 'time', if_not_exists => TRUE);
+
+-- 4. Indexes (Critical for analytics)
+create index on traffic_logs (time desc);
+create index on traffic_logs (is_bot);
+create index on traffic_logs (path);
+
+-- 5. RLS (Security)
+alter table traffic_logs enable row level security;
+
+-- Allow Service Role to Insert (Public cannot write)
+create policy "Service Role can insert logs"
+on traffic_logs for insert
+to service_role
+with check (true);
+
+
+4. Implementation Logic
+
+A. The Logger Utility (lib/logger.ts)
+
+Create a dedicated file for the logging logic.
+
+Method: logVisit(data: LogData)
+
+Behavior: Fire-and-forget. Do not await the DB insert in a way that blocks the response.
+
+Client: Use SUPABASE_SERVICE_ROLE_KEY.
+
+B. Middleware Integration (middleware.ts)
+
+The middleware must filter out "noise" (static assets) so we only log actual Page Views.
+
+Filtering Rules:
+Ignore requests where the path starts with:
+
+/_next/ (Internal Next.js files)
+
+/favicon.ico
+
+/images/ (Static assets)
+
+/api/ (Optional: decide if you want to log API hits)
+
+Logic Flow:
+
+Check if path is excluded (static asset). If yes, skip logging.
+
+Parse User-Agent.
+
+Determine is_bot and bot_name (using a regex list).
+
+Call logVisit() asynchronously.
+
+Proceed with intMiddleware.
+
+// Pseudo-code for middleware.ts
+const EXCLUDED_PATHS = [
+  '/_next', '/favicon.ico', '/images', '/static', '/robots.txt', '/sitemap.xml'
+];
+
+export default function middleware(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+
+  // 1. Filter out static assets
+  const isExcluded = EXCLUDED_PATHS.some(p => path.startsWith(p));
+
+  if (!isExcluded) {
+    // 2. Classify Visitor
+    const userAgent = request.headers.get('user-agent') || '';
+    const botInfo = detectBot(userAgent); // Helper to write
+
+    // 3. Log (Fire and Forget)
+    logVisit({
+      path,
+      method: request.method,
+      ip: request.headers.get('x-forwarded-for') || 'unknown',
+      user_agent: userAgent,
+      is_bot: botInfo.isBot,
+      bot_name: botInfo.name,
+      referer: request.headers.get('referer'),
+      country: request.geo?.country // If using Vercel
+    });
+  }
+
+  return intlMiddleware(request);
+}
+
+
+5. Requirements for Cursor
+
+Create lib/logger.ts: Setup the Supabase Admin client and insert function.
+
+Create lib/bot-detector.ts: A helper function containing the Regex logic to identify common bots (Google, Bing, OpenAI, Perplexity, Anthropic).
+
+Update middleware.ts: Implement the filtering and logging logic described above.
+
+6. Environment Variables
+
+Ensure these are present in .env:
+
+NEXT_PUBLIC_SUPABASE_URL
+
+SUPABASE_SERVICE_ROLE_KEY
